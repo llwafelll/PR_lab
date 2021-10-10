@@ -9,4 +9,8 @@
 
 4. make operation on github
 
+git push https://llwafelll:$(cat PAT)@github.com/llwafelll/programowanie_rownolegle main
 
+--OR--
+
+git push https://llwafelll:$TOKEN@github.com/llwafelll/programowanie_rownolegle main
