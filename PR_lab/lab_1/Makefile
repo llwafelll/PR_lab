@@ -11,10 +11,10 @@ OPT = -g -DDEBUG
 # OPT = -O3
 
 # pliki naglowkowe
-#INC = -I../pomiar_czasu
+INC = -I../pomiar_czasu
 
 # biblioteki
-#LIB = -L../pomiar_czasu -lm
+LIB = -L../pomiar_czasu -lm
 
 # zaleznosci i komendy
 moj_program: moj_program.o pomiar_czasu.o
@@ -22,8 +22,8 @@ moj_program: moj_program.o pomiar_czasu.o
 
 # jak uzyskac plik moj_program.o ?
 moj_program.o: 
+	$(CCOMP) -c moj_program.c $(INC)
 	
-
 
 pomiar_czasu.o: pomiar_czasu.c pomiar_czasu.h
 	$(CCOMP) -c $(OPT) pomiar_czasu.c
