@@ -1,0 +1,12 @@
+1. on github.com go to settings > developer settings > personal access token.
+2. generate new token
+3. copy token and store somewhere on the machine (not in the repo?)
+    - echo [paste from clipboard] > [filename]
+    
+    --OR--
+    
+    - export TOKEN=$(cat [filename])
+
+4. make operation on github
+
+
