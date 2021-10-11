@@ -16,6 +16,9 @@ INC = -I./pomiar_czasu
 # biblioteki
 LIB = -L./pomiar_czasu -lpomiar_czasu -lm
 
+# in command line >sudo make prog=fork|clone
+run: $(prog) clean
+
 # zaleznosci i komendy
 fork: fork.o 
 	$(LOADER) $(OPT) fork.o -o fork $(LIB)

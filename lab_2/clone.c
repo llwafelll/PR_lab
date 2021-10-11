@@ -24,7 +24,7 @@ int funkcja_watku( void* argument )
   return 0;
 }
 
-main()
+int main()
 {
 
   void *stos;
