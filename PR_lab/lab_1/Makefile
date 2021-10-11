@@ -11,10 +11,13 @@ OPT = -g -DDEBUG
 # OPT = -O3
 
 # pliki naglowkowe
-INC = -I../pomiar_czasu
+INC = -I./.
 
 # biblioteki
-LIB = -L../pomiar_czasu -lm
+LIB = -L./. -lm
+
+# to make 'clean' command work
+all: moj_program clean
 
 # zaleznosci i komendy
 moj_program: moj_program.o pomiar_czasu.o
