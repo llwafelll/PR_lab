@@ -25,7 +25,7 @@ int main(){
     printf("%d ",k+i);
 
   }
-  printf("\n");
+  printf("\n\n");
   printf("Czas wykonania %d operacji wejscia/wyjscia: \n",liczba);
 
 	// Wypisanie czasu na ekran
@@ -46,7 +46,7 @@ int main(){
 
   }
 
-  printf("Wynik operacji arytmetycznych: %lf\n", a);
+  printf("\nWynik operacji arytmetycznych: %lf\n", a);
   printf("Czas wykonania %d operacji arytmetycznych: \n",liczba);
 
 	// Zakonczenie pomiaru czasu dla petli z operacjami arytmetycznymi
@@ -54,8 +54,9 @@ int main(){
 	t2 = czas_CPU() - t2;
 
 	// Wypisanie czasu na ekran
-	printf("czas CPU      = %lf\n", t2);
-	printf("czas zegarowy = %lf\n", t1);
+	printf("czas CPU         = %lf\n", t2);
+	printf("czas zegarowy    = %lf\n", t1);
 
+	printf("\n");
 
 }

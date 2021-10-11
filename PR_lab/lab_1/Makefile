@@ -6,15 +6,15 @@ LOADER = gcc
 
 # opcje optymalizacji:
 # wersja do debugowania
-OPT = -g -DDEBUG
+# OPT = -g -DDEBUG
 # wersja zoptymalizowana do mierzenia czasu
-# OPT = -O3
+
 
 # pliki naglowkowe
-INC = -I./.
+INC = -I./pomiar_czasu/
 
 # biblioteki
-LIB = -L./. -lm
+LIB = -L./pomiar_czasu/ -lm
 
 # to make 'clean' command work
 all: moj_program clean
@@ -28,8 +28,8 @@ moj_program.o:
 	$(CCOMP) -c moj_program.c $(INC)
 	
 
-pomiar_czasu.o: pomiar_czasu.c pomiar_czasu.h
-	$(CCOMP) -c $(OPT) pomiar_czasu.c
+pomiar_czasu.o: ./pomiar_czasu/pomiar_czasu.c ./pomiar_czasu/pomiar_czasu.h
+	$(CCOMP) -c $(OPT) ./pomiar_czasu/pomiar_czasu.c
 
 clean:
 	rm -f *.o
