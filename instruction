@@ -14,3 +14,8 @@ git push https://llwafelll:$(cat PAT)@github.com/llwafelll/programowanie_rownole
 --OR--
 
 git push https://llwafelll:$TOKEN@github.com/llwafelll/programowanie_rownolegle main
+
+5. IMPORTANT NOTE
+You can also add remote to avoid writing such long line every time push is needed
+
+git remote add PRremote https://llwafelll:$TOKEN@github.com/llwafelll/programowanie_rownolegle.git

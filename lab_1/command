@@ -1,0 +1,1 @@
+sudo gcc -g -DDEBUG moj_program.c -I./pomiar_czasu/ -lpomiar_czasu -L./pomiar_czasu -lm -o prog
