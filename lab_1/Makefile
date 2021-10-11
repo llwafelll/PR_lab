@@ -24,8 +24,11 @@ LIB = -lpomiar_czasu
 all: moj_program clean
 
 # zaleznosci i komendy
-moj_program: moj_program.c
-	$(LOADER) $(OPT) moj_program.c $(INC) $(LIB) $(LIBDIR) -o moj_program
+moj_program: moj_program.o
+	$(LOADER) $(OPT) moj_program.o $(LIB) $(LIBDIR) -o moj_program
+
+moj_program.o: moj_program.c
+	$(LOADER) $(OPT) -c moj_program.c $(INC) -o moj_program.o
 
 clean:
 	rm -f *.o
