@@ -1,6 +1,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<unistd.h>
+#include<pomiar_czasu.h>
 
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -37,6 +38,7 @@ int main()
     exit( 1 );
   }
 
+	inicjuj_czas();
   for(i=0;i<1000;i++){
 
     pid = clone( &funkcja_watku, (void *) stos+ROZMIAR_STOSU, 
@@ -45,6 +47,7 @@ int main()
     waitpid(pid, NULL, __WCLONE);
 
   }
+	drukuj_czas();
 
   free( stos );
 }

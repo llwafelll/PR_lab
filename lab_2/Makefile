@@ -35,5 +35,13 @@ clone: clone.o
 clone.o: clone.c ./pomiar_czasu/pomiar_czasu.h
 	$(CCOMP) -c $(OPT) clone.c $(INC) 
 
+# zaleznosci i komendy
+pzadanie: pzadanie.o 
+	$(LOADER) $(OPT) pzadanie.o -o pzadanie $(LIB)
+
+# jak uzyskac plik clone.o ?
+pzadanie.o: pzadanie.c ./pomiar_czasu/pomiar_czasu.h
+	$(CCOMP) -c $(OPT) pzadanie.c $(INC) 
+
 clean:
 	rm -f *.o
