@@ -1,0 +1,21 @@
+1. on github.com go to settings > developer settings > personal access token.
+2. generate new token
+3. copy token and store somewhere on the machine (not in the repo?)
+    - echo [paste from clipboard] > [filename]
+    
+    --OR--
+    
+    - export TOKEN=$(cat [filename])
+
+4. make operation on github
+
+git push https://llwafelll:$(cat PAT)@github.com/llwafelll/programowanie_rownolegle main
+
+--OR--
+
+git push https://llwafelll:$TOKEN@github.com/llwafelll/programowanie_rownolegle main
+
+5. IMPORTANT NOTE
+You can also add remote to avoid writing such long line every time push is needed
+
+git remote add PRremote https://llwafelll:$TOKEN@github.com/llwafelll/programowanie_rownolegle.git
