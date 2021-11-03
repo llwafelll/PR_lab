@@ -133,6 +133,7 @@ double calka_zrownoleglenie_petli(double a, double b, double dx){
     exit(0);
   }
 
+  printf("\n%10s %10s %10s %10s\n", "i", "my_start", "my_end", "my_stride");
   // tworzenie wątków
   for (i = 0; i < l_w; ++i)
     pthread_create(&threads[i], NULL, calka_fragment_petli_w, (void *) &indices[i]);
@@ -151,7 +152,7 @@ void* calka_fragment_petli_w(void* arg_wsk){
 
   double a, b, dx; // skąd pobrać dane a, b, dx, N, l_w ? 
   dx = dx_global;
-  a = a_global + my_id * ceil(N_global/l_w_global) * dx;
+  //a = a_global + my_id * ceil(N_global/l_w_global) * dx;
   //b = b_global + (my_id + 1) * ceil(N_global/l_w_global) * dx;
   //if (b > b_global) b = b_global;
   int N, l_w;      // wariant 1 - globalne
@@ -168,10 +169,14 @@ void* calka_fragment_petli_w(void* arg_wsk){
 
   // dekompozycja blokowa
   if (typ_dekompozycji == 'b') {
-    my_start = my_id * ceil(N_global/l_w_global);
-    my_end = (my_id + 1) * ceil(N_global/l_w_global);
+    my_start = my_id * (int)ceil((double)N_global/l_w_global);
+    my_end = (my_id + 1) * (int)ceil((double)N_global/l_w_global);
     my_stride = 1;
+
+    if (my_end > N_global) my_end = N_global;
   }
+
+
 
   // something else ? (dekompozycja blokowo-cykliczna)
 
@@ -185,6 +190,8 @@ void* calka_fragment_petli_w(void* arg_wsk){
   for(i=my_start; i<my_end; i+=my_stride){
     double x1 = a_global + i*dx;
     calka += 0.5*dx*(funkcja(x1)+funkcja(x1+dx));
+    printf("%10d %10d %10d %10d %10d\n", i, my_start, my_end, my_stride,
+        (int)ceil((double)N_global/l_w_global));
     //printf("i %d, x1 %lf, funkcja(x1) %lf, całka = %.15lf\n", 
     //	   i, x1, funkcja(x1), calka);
 
