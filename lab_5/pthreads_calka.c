@@ -19,6 +19,14 @@ int l_w_global=0;
 pthread_mutex_t muteks;
 char typ_dekompozycji = 'b'; // b - blokowa, c - cykliczna
 
+FILE *fd;
+
+static double calka_global=0.0;
+static double a_global;
+static double b_global;
+static double dx_global;
+static int N_global;
+
 int main( int argc, char *argv[] ){
 
   int i; 
@@ -35,12 +43,17 @@ int main( int argc, char *argv[] ){
   b = M_PI;
   //printf("\nPodaj prawy kraniec przedziału całkowania: "); scanf("%lf", &b);
 
-  printf("\nPodaj wysokość pojedynczego trapezu:  "); scanf("%lf", &dx);
-  printf("\nPodaj typ dekompozycji [b]lokowa/[c]ykliczna: "); scanf("%s", &typ_dekompozycji);
+  // printf("\nPodaj wysokość pojedynczego trapezu:  "); scanf("%lf", &dx);
+  dx = strtod(argv[1], NULL);
+
+  // printf("\nPodaj typ dekompozycji [b]lokowa/[c]ykliczna: "); scanf("%s", &typ_dekompozycji);
+  sscanf(argv[2], "%d", &l_w_global);
+  printf("%d\n", l_w_global);
 
 
   //printf("\nPodaj liczbę wątków:  "); scanf("%d", &l_w_global);
 
+  // SCENARIO 1
   printf("\nPoczatek obliczeń sekwencyjnych\n");
   t1 = czas_zegara();
 
@@ -50,6 +63,8 @@ int main( int argc, char *argv[] ){
   printf("\nKoniec obliczen sekwencyjnych\n");
   printf("\tCzas wykonania %lf. \tObliczona całka = %.15lf\n", t1, calka);
 
+
+  // SCENARIO 2
   printf("\nPoczatek obliczeń równoległych (zrównoleglenie pętli)\n");
   t1 = czas_zegara();
 
@@ -59,6 +74,20 @@ int main( int argc, char *argv[] ){
   printf("\nKoniec obliczen  równoległych (zrównoleglenie pętli) \n");
   printf("\tCzas wykonania %lf. \tObliczona całka = %.15lf\n", t1, calka);
 
+
+  typ_dekompozycji = 'c';
+  calka_global = 0.0;
+  printf("\nPoczatek obliczeń równoległych (zrównoleglenie pętli)\n");
+  t1 = czas_zegara();
+
+  calka = calka_zrownoleglenie_petli(a, b, dx);
+
+  t1 = czas_zegara() - t1;
+  printf("\nKoniec obliczen  równoległych (zrównoleglenie pętli) \n");
+  printf("\tCzas wykonania %lf. \tObliczona całka = %.15lf\n", t1, calka);
+
+
+  // SCENARIO 3
   printf("\nPoczatek obliczeń równoległych (dekompozycja obszaru)\n");
   t1 = czas_zegara();
 
@@ -93,11 +122,6 @@ double calka_sekw(double a, double b, double dx){
 }
 
 
-static double calka_global=0.0;
-static double a_global;
-static double b_global;
-static double dx_global;
-static int N_global;
 
 void* calka_fragment_petli_w(void* arg_wsk);
 
@@ -116,14 +140,15 @@ double calka_zrownoleglenie_petli(double a, double b, double dx){
 
   pthread_mutex_init(&muteks, NULL);
   int l_w = l_w_global;
-  printf("\nPodaj liczbę wątków:  "); scanf("%d", &l_w);
-  l_w_global = l_w;
+  // printf("\nPodaj liczbę wątków:  "); scanf("%d", &l_w);
+  // l_w_global = l_w;
 
   // tworzenie struktur danych do obsługi wielowątkowości
   pthread_t threads[l_w];
   int indices[l_w];
   int i;
   for (i = 0; i < l_w; ++i) indices[i] = i;
+
 
   printf("Do obliczenia calki rownolegle uzyta zostanie dekompozycja ");
   if (typ_dekompozycji == 'b') printf("blokowa.\n");
@@ -133,7 +158,7 @@ double calka_zrownoleglenie_petli(double a, double b, double dx){
     exit(0);
   }
 
-  printf("\n%10s %10s %10s %10s\n", "i", "my_start", "my_end", "my_stride");
+  // printf("\n%10s %10s %10s %10s\n", "i", "my_start", "my_end", "my_stride");
   // tworzenie wątków
   for (i = 0; i < l_w; ++i)
     pthread_create(&threads[i], NULL, calka_fragment_petli_w, (void *) &indices[i]);
@@ -190,8 +215,9 @@ void* calka_fragment_petli_w(void* arg_wsk){
   for(i=my_start; i<my_end; i+=my_stride){
     double x1 = a_global + i*dx;
     calka += 0.5*dx*(funkcja(x1)+funkcja(x1+dx));
-    printf("%10d %10d %10d %10d %10d\n", i, my_start, my_end, my_stride,
-        (int)ceil((double)N_global/l_w_global));
+    // printf("%10d %10d %10d %10d %10d\n", i, my_start, my_end, my_stride,
+    //     (int)ceil((double)N_global/l_w_global));
+
     //printf("i %d, x1 %lf, funkcja(x1) %lf, całka = %.15lf\n", 
     //	   i, x1, funkcja(x1), calka);
 
