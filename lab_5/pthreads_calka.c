@@ -5,14 +5,12 @@
 #include"pomiar_czasu.h"
 
 double funkcja ( double x );
-
 double funkcja ( double x ){ return( sin(x) ); }
-
 double calka_sekw(double a, double b, double dx);
-
 double calka_zrownoleglenie_petli(double a, double b, double dx);
-
 double calka_dekompozycja_obszaru(double a, double b, double dx);
+int save_result_to_file(FILE *fd, const char filename[],
+                        const char label[], double calka, double time);
 
 #define LICZBA_W_MAX 1000
 int l_w_global=0;
@@ -20,6 +18,7 @@ pthread_mutex_t muteks;
 char typ_dekompozycji = 'b'; // b - blokowa, c - cykliczna
 
 FILE *fd;
+char filename[] = "data";
 
 static double calka_global=0.0;
 static double a_global;
@@ -30,94 +29,115 @@ static int N_global;
 int main( int argc, char *argv[] ){
 
   int i; 
-
   double t1,t2,t3;
-
   double a, b, dx, calka;
 
   printf("\nProgram obliczania całki z funkcji (sinus) metodą trapezów.\n");
+  
+  // Inicjalizacja przedzialow calkowania (jesli nie zostaly dostarczone jako 
+  // parametr zainicjalizowane zostana wartosciami domyslnymi)
+  if ((argc >= 4) && (argc <= 5)) {
+    a = strtod(argv[3], NULL);
+    b = strtod(argv[4], NULL);
+  } else {
+    a = 0.0;
+    b = M_PI;
+  }
 
-  a = 0.0;
-  //printf("\nPodaj lewy kraniec przedziału całkowania: "); scanf("%lf", &a);
-
-  b = M_PI;
-  //printf("\nPodaj prawy kraniec przedziału całkowania: "); scanf("%lf", &b);
-
-  // printf("\nPodaj wysokość pojedynczego trapezu:  "); scanf("%lf", &dx);
+  // Inicjalizacja dx (wyskokosc trapezu)
   dx = strtod(argv[1], NULL);
 
-  // printf("\nPodaj typ dekompozycji [b]lokowa/[c]ykliczna: "); scanf("%s", &typ_dekompozycji);
+  // Inicjalizacja l_w_global przewowujacej liczbe uzytych watkow
   sscanf(argv[2], "%d", &l_w_global);
-  printf("%d\n", l_w_global);
 
+  // Wypisanie naglowka informacyjnego do pliku z pobranymi danymi
+  fd = fopen(filename, "a");
 
-  //printf("\nPodaj liczbę wątków:  "); scanf("%d", &l_w_global);
+  if (fd == NULL) {
+    printf("Blad podczas zapisywania do pliku\n");
+  } else {
+    fprintf(fd, "\n=== a=%f, b=%f, h_trapez=%f, l_watki=%d ===\n",
+        a, b, dx, l_w_global);
+    printf("Wynik zapisoano do pliku '%s'.\n", filename);
+  }
+
+  fclose(fd);
+
 
   // SCENARIO 1
-  printf("\nPoczatek obliczeń sekwencyjnych\n");
+  printf("Poczatek obliczeń sekwencyjnych\n");
   t1 = czas_zegara();
-
   calka = calka_sekw(a, b, dx);
-
   t1 = czas_zegara() - t1;
-  printf("\nKoniec obliczen sekwencyjnych\n");
+  printf("Koniec obliczen sekwencyjnych\n");
   printf("\tCzas wykonania %lf. \tObliczona całka = %.15lf\n", t1, calka);
-
+  save_result_to_file(fd, filename, "sekwencyjnie", calka, t1);
 
   // SCENARIO 2
-  printf("\nPoczatek obliczeń równoległych (zrównoleglenie pętli)\n");
+  // Dekompozycja blokowa
+  printf("Poczatek obliczeń równoległych (zrównoleglenie pętli)\n");
   t1 = czas_zegara();
-
   calka = calka_zrownoleglenie_petli(a, b, dx);
-
   t1 = czas_zegara() - t1;
-  printf("\nKoniec obliczen  równoległych (zrównoleglenie pętli) \n");
+  printf("Koniec obliczen  równoległych (zrównoleglenie pętli) \n");
   printf("\tCzas wykonania %lf. \tObliczona całka = %.15lf\n", t1, calka);
+  save_result_to_file(fd, filename, "zrownolegl_blok", calka, t1);
 
 
+  // Dekompozycja cykliczna
   typ_dekompozycji = 'c';
   calka_global = 0.0;
-  printf("\nPoczatek obliczeń równoległych (zrównoleglenie pętli)\n");
+  printf("Poczatek obliczeń równoległych (zrównoleglenie pętli)\n");
   t1 = czas_zegara();
-
   calka = calka_zrownoleglenie_petli(a, b, dx);
-
   t1 = czas_zegara() - t1;
-  printf("\nKoniec obliczen  równoległych (zrównoleglenie pętli) \n");
+  printf("Koniec obliczen  równoległych (zrównoleglenie pętli) \n");
   printf("\tCzas wykonania %lf. \tObliczona całka = %.15lf\n", t1, calka);
+  save_result_to_file(fd, filename, "zrownolegl_cykl", calka, t1);
 
 
   // SCENARIO 3
-  printf("\nPoczatek obliczeń równoległych (dekompozycja obszaru)\n");
+  printf("Poczatek obliczeń równoległych (dekompozycja obszaru)\n");
   t1 = czas_zegara();
-
   calka = calka_dekompozycja_obszaru(a, b, dx);
-
   t1 = czas_zegara() - t1;
-  printf("\nKoniec obliczen  równoległych (dekompozycja obszaru) \n");
+  printf("Koniec obliczen  równoległych (dekompozycja obszaru) \n");
   printf("\tCzas wykonania %lf. \tObliczona całka = %.15lf\n", t1, calka);
 
 }
 
+int save_result_to_file(FILE *fd, const char filename[],
+                         const char label[], double calka, double time) {
+
+  fd = fopen(filename, "a");
+
+  if (fd == NULL) {
+    printf("Blad podczas zapisywania do pliku\n");
+    return 0;
+  }
+  fprintf(fd, "%-15s %s %10.15lf %2.10f\n", label, ":", calka, time);
+
+  fclose(fd);
+
+  printf("Wynik zapisoano do pliku '%s'.\n", filename);
+  return 1;
+}
 
 double calka_sekw(double a, double b, double dx){
-
-  int N = ceil((b-a)/dx);
-  double dx_adjust = (b-a)/N;
-
-  printf("Obliczona liczba trapezów: N = %d\n", N);
-  //printf("a %lf, b %lf, n %d, dx %.12lf (dx_adjust %.12lf)\n", a, b, N, dx, dx_adjust);
   int i;
   double calka = 0.0;
-  for(i=0; i<N; i++){
+  int N = ceil((b - a) / dx); // Obliczenie liczby trapezow
+  double dx_adjust = (b - a) / N; // dopasowanie dx
 
-    double x1 = a + i*dx_adjust;
+  //printf("Obliczona liczba trapezów: N = %d\n", N);
+  //printf("a %lf, b %lf, n %d, dx %.12lf (dx_adjust %.12lf)\n", a, b, N, dx, dx_adjust);
+  for(i = 0; i < N; i++){
+
+    double x1 = a + i * dx_adjust;
     calka += 0.5*dx_adjust*(funkcja(x1)+funkcja(x1+dx_adjust));
     //printf("i %d, x1 %lf, funkcja(x1) %lf, całka = %.15lf\n", 
     //	   i, x1, funkcja(x1), calka);
-
   }
-
   return(calka);
 }
 
@@ -127,6 +147,11 @@ void* calka_fragment_petli_w(void* arg_wsk);
 
 double calka_zrownoleglenie_petli(double a, double b, double dx){
 
+  int i;
+  int l_w = l_w_global;
+  int indices[l_w];
+  pthread_t threads[l_w];
+
   int N = ceil((b-a)/dx);
   double dx_adjust = (b-a)/N;
   a_global = a;
@@ -134,36 +159,20 @@ double calka_zrownoleglenie_petli(double a, double b, double dx){
   N_global = N;
   dx_global = dx_adjust;
 
-  printf("Obliczona liczba trapezów: N = %d\n", N);
-  printf("dx_global = dx_adjust = %.6lf\n", dx_adjust);
-  //printf("a %lf, b %lf, n %d, dx %.12lf (dx_adjust %.12lf)\n", a, b, N, dx, dx_adjust);
-
   pthread_mutex_init(&muteks, NULL);
-  int l_w = l_w_global;
-  // printf("\nPodaj liczbę wątków:  "); scanf("%d", &l_w);
-  // l_w_global = l_w;
 
-  // tworzenie struktur danych do obsługi wielowątkowości
-  pthread_t threads[l_w];
-  int indices[l_w];
-  int i;
+  // printf("Obliczona liczba trapezów: N = %d\n", N);
+  // printf("dx_global = dx_adjust = %.6lf\n", dx_adjust);
+  // printf("a %lf, b %lf, n %d, dx %.12lf (dx_adjust %.12lf)\n", a, b, N, dx, dx_adjust);
+
+  // Inicjalizacja tablicy intekow do identyfikacji watkow
   for (i = 0; i < l_w; ++i) indices[i] = i;
 
-
-  printf("Do obliczenia calki rownolegle uzyta zostanie dekompozycja ");
-  if (typ_dekompozycji == 'b') printf("blokowa.\n");
-  else if (typ_dekompozycji == 'c') printf("cykliczna.\n");
-  else {
-    printf("\nBLAD: Podano nieprawidlowy argument!");
-    exit(0);
-  }
-
-  // printf("\n%10s %10s %10s %10s\n", "i", "my_start", "my_end", "my_stride");
-  // tworzenie wątków
+  // Tworzenie wątkow
   for (i = 0; i < l_w; ++i)
     pthread_create(&threads[i], NULL, calka_fragment_petli_w, (void *) &indices[i]);
 
-  // oczekiwanie na zakończenie pracy wątków
+  // Oczekiwanie na zakończenie pracy wątków
   for (i = 0; i < l_w; ++i)
     pthread_join(threads[i], NULL);
 
@@ -174,15 +183,7 @@ void* calka_fragment_petli_w(void* arg_wsk){
 
   int my_id = *((int *)arg_wsk);
   int my_start, my_end, my_stride;
-
-  double a, b, dx; // skąd pobrać dane a, b, dx, N, l_w ? 
-  dx = dx_global;
-  //a = a_global + my_id * ceil(N_global/l_w_global) * dx;
-  //b = b_global + (my_id + 1) * ceil(N_global/l_w_global) * dx;
-  //if (b > b_global) b = b_global;
-  int N, l_w;      // wariant 1 - globalne
-
-  // a = a_global; // itd. itp. - wartości globalne nadaje calka_zrownoleglenie_petli
+  double dx = dx_global;
 
   // dekompozycja cykliczna
   if (typ_dekompozycji == 'c') {
@@ -190,7 +191,6 @@ void* calka_fragment_petli_w(void* arg_wsk){
     my_end = N_global;
     my_stride = l_w_global;
   }
-  
 
   // dekompozycja blokowa
   if (typ_dekompozycji == 'b') {
@@ -201,29 +201,23 @@ void* calka_fragment_petli_w(void* arg_wsk){
     if (my_end > N_global) my_end = N_global;
   }
 
-
-
   // something else ? (dekompozycja blokowo-cykliczna)
-
   // printf("\nWątek %d\n", my_id);
   // printf("my_start %d, my_end %d, my_stride %d\n", 
 	//  my_start, my_end, my_stride);
 
-
+  // Algorytm calkowania
   int i;
   double calka = 0.0;
   for(i=my_start; i<my_end; i+=my_stride){
     double x1 = a_global + i*dx;
     calka += 0.5*dx*(funkcja(x1)+funkcja(x1+dx));
-    // printf("%10d %10d %10d %10d %10d\n", i, my_start, my_end, my_stride,
-    //     (int)ceil((double)N_global/l_w_global));
-
     //printf("i %d, x1 %lf, funkcja(x1) %lf, całka = %.15lf\n", 
     //	   i, x1, funkcja(x1), calka);
 
   }
 
-  //printf("Dla my_id = %d, calka jest rowna = %.6lf\n", my_id, calka);
+  // Dodanie obliczonej czesci do globalnej sumy
   pthread_mutex_lock(&muteks);
   calka_global += calka;
   pthread_mutex_unlock(&muteks);
