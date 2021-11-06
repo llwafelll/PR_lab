@@ -16,7 +16,7 @@ get_data_regex = re.compile(r"(?:((?P<mode>[a-z]+\_[a-z]+|(?:[a-z]+)))\s*|\s(?P<
 
 # Building columns structure using itertools
 c1 = list(it.product(('integral', ), ('a', 'b', 'dx', 'threads')))
-c2 = list(it.product(('seq', 'block', 'cycle'), ('value', 'time')))
+c2 = list(it.product(('seq', 'block', 'cycle', 'decomp'), ('value', 'time')))
 
 # Creation of multiindex based on prepared c1 and c2 lists
 _index = pd.MultiIndex.from_tuples([*c1, *c2])
@@ -68,6 +68,14 @@ with open(os.path.join(BASENAME, FILENAME), "r") as f:
                     value, time = v[0], v[1]
 
                     labels = it.product(('cycle', ), ('time', 'value'))
+                    _columns = pd.MultiIndex.from_tuples(labels)
+                    to_update = pd.DataFrame([[time, value]], columns=_columns)
+                    df.iloc[-1:].update(to_update)
+
+                elif k == "dekompozycja":
+                    value, time = v[0], v[1]
+
+                    labels = it.product(('decomp', ), ('time', 'value'))
                     _columns = pd.MultiIndex.from_tuples(labels)
                     to_update = pd.DataFrame([[time, value]], columns=_columns)
                     df.iloc[-1:].update(to_update)

@@ -103,6 +103,7 @@ int main( int argc, char *argv[] ){
   t1 = czas_zegara() - t1;
   printf("Koniec obliczen  równoległych (dekompozycja obszaru) \n");
   printf("\tCzas wykonania %lf. \tObliczona całka = %.15lf\n", t1, calka);
+  save_result_to_file(fd, filename, "dekompozycja", calka, t1);
 
 }
 
@@ -226,25 +227,51 @@ void* calka_fragment_petli_w(void* arg_wsk){
 
 
 void* calka_podobszar_w(void* arg_wsk);
+struct int_data {
+  int my_id;
+  double a;
+  double b;
+  double dx;
+  double result;
+};
 
 double calka_dekompozycja_obszaru(double a, double b, double dx){
-
 
   //printf("a %lf, b %lf, dx %lf\n", a, b, dx);
 
   int l_w = l_w_global;
+  pthread_t threads[l_w];
   //printf("\nPodaj liczbę wątków:  "); scanf("%d", &l_w);
 
   double calka_suma_local = 0.0;
 
   // tworzenie struktur danych do obsługi wielowątkowości
+  struct int_data arr_data[l_w];
 
+  double delta = (b - a)/l_w_global;
 
   // tworzenie wątków
+  int i;
+  
+  for (i = 0; i < l_w_global; ++i) {
+    arr_data[i].my_id = i;
+    arr_data[i].a = i * delta;
+    arr_data[i].b = (i + 1) * delta;
+    arr_data[i].dx = dx;
+  }
 
+  for (i = 0; i < l_w_global; ++i) {
+    pthread_create(&threads[i], NULL, calka_podobszar_w, (void*) &arr_data[i]);
+  }
 
   // oczekiwanie na zakończenie pracy wątków
+  for (i = 0; i < l_w_global; ++i) {
+    pthread_join(threads[i], NULL);
+  }
 
+  for (i = 0; i < l_w_global; ++i) {
+    calka_suma_local += arr_data[i].result;
+  }
 
   return(calka_suma_local);
 }
@@ -255,11 +282,15 @@ void* calka_podobszar_w(void* arg_wsk){
 
   double a_local, b_local, dx;
   // rozpakowanie danych przesłanych do wątku
+  struct int_data* arg = (struct int_data*)arg_wsk;
+  a_local = arg->a;
+  b_local = arg->b;
+  dx = arg->dx;
 
   int N_local = ceil((b_local-a_local)/dx);
   double dx_adjust_local = (b_local-a_local)/N_local;
 
-  int my_id;
+  int my_id = arg->my_id;
   printf("\nWątek %d\n", my_id);
   printf("a_local %lf, b_local %lf, dx_adjust_local %lf, n_local %d\n", 
 	 a_local, b_local, dx_adjust_local, N_local);
@@ -267,12 +298,12 @@ void* calka_podobszar_w(void* arg_wsk){
   int i;
   double calka = 0.0;
   for(i=0; i<N_local; i++){
-
     double x1 = a_local + i*dx_adjust_local;
     calka += 0.5*dx_adjust_local*(funkcja(x1)+funkcja(x1+dx_adjust_local));
     //printf("i %d, x1 %lf, funkcja(x1) %lf, całka = %.15lf\n", 
     //	   i, x1, funkcja(x1), calka);
-
   }
+  arg->result = calka;
 
 }
+
