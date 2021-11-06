@@ -3,55 +3,77 @@ import numpy as np
 import itertools as it
 import re
 from collections import defaultdict
+import os
+import enum
 
+# Building path
+BASENAME = os.path.join(os.getcwd(), 'tempPR', 'PR_lab', 'lab_5')
+FILENAME = "data"
 
+# Regular expressions
 settings_regex = re.compile(r"(?<==)\d+(?:.\d+)*")
-concurrent_regex = re.compile(r"(\w+| ).*?(\d+\.\d+)")
 get_data_regex = re.compile(r"(?:((?P<mode>[a-z]+\_[a-z]+|(?:[a-z]+)))\s*|\s(?P<values>\d+\.\d+))")
-# sekw_regex = re.compile(r"sekw.*?((?<=:\s)\d+\.\d+)(?:\s)(\d+\.\d+)")
-# blok_regex = re.compile(r"blok.*?((?<=:\s)\d+\.\d+)(?:\s)(\d+\.\d+)")
-# cykl_regex = re.compile(r"cykl.*?((?<=:\s)\d+\.\d+)(?:\s)(\d+\.\d+)")
 
-c1 = it.product(('integral', ), ('a', 'b', 'dx', 'threads'))
-c2 = it.product(('seq', 'block', 'cycle'), ('value', 'time'))
+# Building columns structure using itertools
+c1 = list(it.product(('integral', ), ('a', 'b', 'dx', 'threads')))
+c2 = list(it.product(('seq', 'block', 'cycle'), ('value', 'time')))
+
+# Creation of multiindex based on prepared c1 and c2 lists
 _index = pd.MultiIndex.from_tuples([*c1, *c2])
+
+# Initialization of the DataFrame
 df = pd.DataFrame(columns=_index)
 
-with open("./data", "r") as f:
+with open(os.path.join(BASENAME, FILENAME), "r") as f:
     data = defaultdict(defaultdict)
-    while (l := f.readline()):
-        if l[:3] == '===':
-            i = settings_regex.finditer(l)
-            om = (o for o in i)
+
+    while (line := f.readline()):
+        if line[:3] == '===':
+            i = settings_regex.finditer(line)
+            om = (o for o in i) # helper generator
             a, b, dx, w = [x.group(0) for x in om]
 
-            c1 = it.product(('integral', ), ('a', 'b', 'dx', 'threads'))
-            updater = pd.DataFrame([[a, b, dx, w]], columns=pd.MultiIndex.from_tuples([*c1]))
+            # Append new row filled with data
+            updater = pd.DataFrame([[a, b, dx, w]],
+                                   columns=pd.MultiIndex.from_tuples([*c1]))
             df = df.append(updater)
 
-            
-        elif l != '\n':
-            i = get_data_regex.findall(l)
+        elif line != '\n':
+            i = get_data_regex.findall(line)
+            _dict = defaultdict(list)
 
-            cseq = it.product(('seq', 'block', 'cycle'), ('value', 'time'))
-            cseq = it.product(('seq', 'block', 'cycle'), ('value', 'time'))
-            cseq = it.product(('seq', 'block', 'cycle'), ('value', 'time'))
-
-            defd = defaultdict(list)
             z = [v[2] if c else v[0] for c, v in enumerate(i)]
-            defd[z[0]].append(z[1])
-            defd[z[0]].append(z[2])
+            _dict[z[0]].append(z[1])
+            _dict[z[0]].append(z[2])
 
-            for k, v in defd.items():
-                if k == 'sekwencyjnie':
+            # Fill rest of the colums with data for each row
+            for k, v in _dict.items():
+                if k == "sekwencyjnie":
                     value, time = v[0], v[1]
-                    u = pd.DataFrame([[time, value]], columns=pd.MultiIndex.from_tuples(it.product(('seq', ), ('time', 'value'))))
-                    # df.iloc[-1:]['time'] = time
-                    df.iloc[-1:].update(u)
-                    # df.iloc[-1:].update(u)
-                    # print(df)
-                
+                    
+                    labels = it.product(('seq', ), ('time', 'value'))
+                    _columns = pd.MultiIndex.from_tuples(labels)
+                    to_update = pd.DataFrame([[time, value]], columns=_columns)
+                    df.iloc[-1:].update(to_update)
+
+                elif k == "zrownolegl_blok":
+                    value, time = v[0], v[1]
+                    
+                    labels = it.product(('block', ), ('time', 'value'))
+                    _columns = pd.MultiIndex.from_tuples(labels)
+                    to_update = pd.DataFrame([[time, value]], columns=_columns)
+                    df.iloc[-1:].update(to_update)
+
+                elif k == "zrownolegl_cykl":
+                    value, time = v[0], v[1]
+
+                    labels = it.product(('cycle', ), ('time', 'value'))
+                    _columns = pd.MultiIndex.from_tuples(labels)
+                    to_update = pd.DataFrame([[time, value]], columns=_columns)
+                    df.iloc[-1:].update(to_update)
+
 print(df)
+df.to_csv("results.csv")
 
 
 
