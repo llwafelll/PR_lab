@@ -1,5 +1,6 @@
 from subprocess import run
 from itertools import product
+from math import pi
 
 # settings
 threads_numbers = 2, 8
@@ -9,4 +10,4 @@ run(["make", "clean"])
 run(["make"])
 
 for args in product(map(str, dx_sizes), map(str, threads_numbers)):
-    run(["./pthreads_calka", *args, "0", "3.14"])
+    run(["./pthreads_calka", *args, "0", str(pi)])
