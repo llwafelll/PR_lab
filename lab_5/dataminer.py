@@ -81,7 +81,7 @@ with open(os.path.join(BASENAME, FILENAME), "r") as f:
                     df.iloc[-1:].update(to_update)
 
 print(df)
-df.to_csv("results.csv")
+df.to_csv("results2.csv")
 
 
 

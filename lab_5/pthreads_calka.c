@@ -261,7 +261,8 @@ double calka_dekompozycja_obszaru(double a, double b, double dx){
   }
 
   for (i = 0; i < l_w_global; ++i) {
-    pthread_create(&threads[i], NULL, calka_podobszar_w, (void*) &arr_data[i]);
+    pthread_create(&threads[i], NULL, calka_podobszar_w,
+                   (void*) &arr_data[i]);
   }
 
   // oczekiwanie na zakończenie pracy wątków
@@ -290,10 +291,10 @@ void* calka_podobszar_w(void* arg_wsk){
   int N_local = ceil((b_local-a_local)/dx);
   double dx_adjust_local = (b_local-a_local)/N_local;
 
-  int my_id = arg->my_id;
-  printf("\nWątek %d\n", my_id);
-  printf("a_local %lf, b_local %lf, dx_adjust_local %lf, n_local %d\n", 
-	 a_local, b_local, dx_adjust_local, N_local);
+  // int my_id = arg->my_id;
+  // printf("\nWątek %d\n", my_id);
+  // printf("a_local %lf, b_local %lf, dx_adjust_local %lf, n_local %d\n", 
+	//  a_local, b_local, dx_adjust_local, N_local);
 
   int i;
   double calka = 0.0;
