@@ -146,8 +146,6 @@ double calka_sekw(double a, double b, double dx){
 
 void* calka_fragment_petli_w(void* arg_wsk);
 
-
-double partial_result[LICZBA_W_MAX];
 double calka_zrownoleglenie_petli(double a, double b, double dx){
 
   int i;
@@ -178,9 +176,6 @@ double calka_zrownoleglenie_petli(double a, double b, double dx){
   // Oczekiwanie na zakończenie pracy wątków
   for (i = 0; i < l_w; ++i)
     pthread_join(threads[i], NULL);
-
-  for (i = 0; i < l_w; ++i)
-    calka_global += partial_result[i];
 
   return(calka_global);
 }
@@ -222,12 +217,11 @@ void* calka_fragment_petli_w(void* arg_wsk){
     //	   i, x1, funkcja(x1), calka);
 
   }
-  partial_result[my_id] = calka;
 
   // Dodanie obliczonej czesci do globalnej sumy
-  // pthread_mutex_lock(&muteks);
-  // calka_global += calka;
-  // pthread_mutex_unlock(&muteks);
+  pthread_mutex_lock(&muteks);
+  calka_global += calka;
+  pthread_mutex_unlock(&muteks);
 
 }
 
@@ -299,7 +293,7 @@ void* calka_podobszar_w(void* arg_wsk){
   int my_id = arg->my_id;
   // printf("\nWątek %d\n", my_id);
   // printf("a_local %lf, b_local %lf, dx_adjust_local %lf, n_local %d\n", 
-	// a_local, b_local, dx_adjust_local, N_local);
+	//  a_local, b_local, dx_adjust_local, N_local);
 
   int i;
   double calka = 0.0;
