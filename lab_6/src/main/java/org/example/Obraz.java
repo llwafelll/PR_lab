@@ -10,8 +10,9 @@ class Obraz {
     private char[][] tab;
     private char[] tab_symb;
     private int[] histogram;
-    
-    public Obraz(int n, int m) {
+	private int[] histParallel;
+
+	public Obraz(int n, int m) {
 	
 	this.size_n = n;
 	this.size_m = m;
@@ -36,44 +37,66 @@ class Obraz {
 	System.out.print("\n\n"); 
 	
 	histogram = new int[94];
+	histParallel = new int[94];
    	clear_histogram();
+	clearHistogramParallel();
     }
     
     public void clear_histogram(){
-
-	for(int i=0;i<94;i++) histogram[i]=0;
-
+		for(int i=0;i<94;i++) histogram[i]=0;
     }
 
-    public void calculate_histogram(){
-
-	for(int i=0;i<size_n;i++) {
-	    for(int j=0;j<size_m;j++) {
-
-		// optymalna wersja obliczania histogramu, wykorzystująca fakt, że symbole w tablicy
-		// można przekształcić w indeksy tablicy histogramu
-		// histogram[(int)tab[i][j]-33]++;
-		
-		// wersja bardziej ogólna dla tablicy symboli nie utożsamianych z indeksami
-		// tylko dla tej wersji sensowne jest zrównoleglenie w dziedzinie zbioru znaków ASCII
-		for(int k=0;k<94;k++) {
-		    if(tab[i][j] == tab_symb[k]) histogram[k]++;
-		    //if(tab[i][j] == (char)(k+33)) histogram[k]++;	    
-		}
-
-	    }
+	public void clearHistogramParallel(){
+		for(int i=0;i<94;i++) histParallel[i]=0;
 	}
 
+	public void calculate_histogram(){
+		for(int i=0;i<size_n;i++) {
+			for(int j=0;j<size_m;j++) {
+
+			// optymalna wersja obliczania histogramu, wykorzystująca fakt, że symbole w tablicy
+			// można przekształcić w indeksy tablicy histogramu
+			// histogram[(int)tab[i][j]-33]++;
+
+			// wersja bardziej ogólna dla tablicy symboli nie utożsamianych z indeksami
+			// tylko dla tej wersji sensowne jest zrównoleglenie w dziedzinie zbioru znaków ASCII
+			for(int k=0;k<94;k++) {
+				if(tab[i][j] == tab_symb[k]) histogram[k]++;
+				//if(tab[i][j] == (char)(k+33)) histogram[k]++;
+			}
+
+			}
+		}
     }
+
+	public void calculateHistogramForGivenChar(int pos) {
+		for(int i=0;i<size_n;i++) {
+			for (int j = 0; j < size_m; j++) {
+				if (tab[i][j] == (char)(pos + 33)) histParallel[pos]++;
+			}
+		}
+	}
 
     public void print_histogram(){
-	
-	for(int i=0;i<94;i++) {
-		if (histogram[i] != 0)
-			System.out.print(tab_symb[i]+" "+histogram[i]+"\n");
-	    //System.out.print((char)(i+33)+" "+histogram[i]+"\n");	    
+		for(int i=0;i<94;i++) {
+			if (histogram[i] != 0)
+				System.out.print(tab_symb[i]+" "+histogram[i]+"\n");
+			//System.out.print((char)(i+33)+" "+histogram[i]+"\n");
+		}
+    }
+
+	public void printHistParallel() {
+		for(int i=0;i<94;i++) {
+			if (histParallel[i] != 0)
+				System.out.print(tab_symb[i] + " " + histParallel[i] + "\n");
+		}
 	}
 
-    }
+	public boolean compareHist() {
+		for (int i = 0; i < 94; ++i)
+			if (histogram[i] != histParallel[i]) return false;
+
+		return true;
+	}
 
 }
