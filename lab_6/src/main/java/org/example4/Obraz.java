@@ -102,11 +102,15 @@ class Obraz {
 	}
 
     public void print_histogram(){
+		int printed = 0;
 		for(int i=0;i<94;i++) {
-			if (histogram[i] != 0)
-				System.out.print(tab_symb[i]+" "+histogram[i]+"\n");
+			if (histogram[i] != 0) {
+				System.out.print(tab_symb[i] + " " + histogram[i] + "  |  ");
+				if (++printed % 5 == 0) System.out.println();
+			}
 			//System.out.print((char)(i+33)+" "+histogram[i]+"\n");
 		}
+		System.out.println();
     }
 
 	public void printHistParallel() {
@@ -128,29 +132,36 @@ class Obraz {
 		System.out.println();
 	}
 
-	// TODO: do that as well
-//	public void graphOld() {
-//		StringBuilder str = new StringBuilder("");
-//		StringBuilder str2 = new StringBuilder("");
-//		for (int i = 0; i < 94; ++i) {
-//			if (histParallel[i] != 0) {
-//				str = new StringBuilder("");
-//				str2 = new StringBuilder("");
-//
-//				for (int j = 0; j < histParallel[i]; ++j) {
-//					str.append("=");
-//				}
-//
-//				for (int j = 0; j < rowToThread[i]; ++j) {
-//					str2.append(histParallel[j]);
-//				}
-//
-//				System.out.printf("Watek %3d: %10s :[%-40s]\n", rowToThread[i], tab_symb[i], str.toString());
-//			}
-//		}
-//	}
-
+	// TODO: Change way of displaying to be more compact like in example3\Obraz.java in grap() method
 	public void graph() {
+		/* Print each char separately and provide information about the thread by which one has been encountered
+		 * show how many times the char was encountered using = sign
+		 * Output example:
+		 * Watek   0:          $ :[=                                       ]
+		 * Watek   0:          ( :[=                                       ]
+		 * */
+
+		StringBuilder str = new StringBuilder("");
+		StringBuilder str2 = new StringBuilder("");
+
+		for (int j = 0; j < Nthreads; ++j) {
+
+			for (int i = 0; i < 94; ++i) {
+				str = new StringBuilder("");
+				str2 = new StringBuilder("");
+				if (histParallel[j][i] != 0) {
+					str2.append(tab_symb[i]);
+					for (int k = 0; k < histParallel[j][i]; ++k) {
+						str.append("=");
+					}
+					System.out.printf("Thread no. %03d. Assigned chars: %-40s\n[%-80s]\n\n",
+							j, str2.toString(), str.toString());
+				}
+			}
+		}
+	}
+
+	public void graphOld() {
 		/* Print thread number and characters that were associated with this thread (in order to count)
 		 * show now many chars in total was encountered using = signs
 		 * Output example:

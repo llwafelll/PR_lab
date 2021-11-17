@@ -46,8 +46,8 @@ public class Histogram_test {
 		}
 
 		// Print the results
-		// System.out.println("Histogram generated sequentially:");
-		// obraz_1.print_histogram();
+		 System.out.println("Histogram generated sequentially:");
+		 obraz_1.print_histogram();
 		System.out.println("Histogram generated parallel (scenario 2):");
 		obraz_1.printHistParallel();
 		obraz_1.graph(N);

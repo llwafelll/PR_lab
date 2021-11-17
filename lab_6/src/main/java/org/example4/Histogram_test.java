@@ -51,7 +51,7 @@ public class Histogram_test {
 		System.out.println("Histogram generated parallel (scenario 2):");
 		obraz_1.printHistParallel();
 		obraz_1.graph();
-//		obraz_1.graphOld();
+		obraz_1.graphOld();
 
 		// Test integrity
 		System.out.println("Histogram comparison result:");

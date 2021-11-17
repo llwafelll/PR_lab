@@ -87,13 +87,17 @@ class Obraz {
 //				}
 	}
 
-    public void print_histogram(){
+	public void print_histogram(){
+		int printed = 0;
 		for(int i=0;i<94;i++) {
-			if (histogram[i] != 0)
-				System.out.print(tab_symb[i]+" "+histogram[i]+"\n");
+			if (histogram[i] != 0) {
+				System.out.print(tab_symb[i] + " " + histogram[i] + "  |  ");
+				if (++printed % 5 == 0) System.out.println();
+			}
 			//System.out.print((char)(i+33)+" "+histogram[i]+"\n");
 		}
-    }
+		System.out.println();
+	}
 
 	public void printHistParallel() {
 		final int rows = 5;
