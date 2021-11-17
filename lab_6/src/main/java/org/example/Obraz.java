@@ -11,35 +11,38 @@ class Obraz {
     private char[] tab_symb;
     private int[] histogram;
 	private int[] histParallel;
+	private int[] thread_ids;
+
 
 	public Obraz(int n, int m) {
 	
-	this.size_n = n;
-	this.size_m = m;
-	tab = new char[n][m];
-	tab_symb = new char[94];
-	
-	final Random random = new Random();
-	
-	// for general case where symbols could be not just integers
-	for(int k=0;k<94;k++) {
-	    tab_symb[k] = (char)(k+33); // substitute symbols
-	}
+		this.size_n = n;
+		this.size_m = m;
+		tab = new char[n][m];
+		tab_symb = new char[94];
+		thread_ids = new int[94];
 
-	for(int i=0;i<n;i++) {
-	    for(int j=0;j<m;j++) {	
-		tab[i][j] = tab_symb[random.nextInt(94)];  // ascii 33-127
-		//tab[i][j] = (char)(random.nextInt(94)+33);  // ascii 33-127
-		System.out.print(tab[i][j]+" ");
-	    }
-	    System.out.print("\n");
-	}
-	System.out.print("\n\n"); 
-	
-	histogram = new int[94];
-	histParallel = new int[94];
-   	clear_histogram();
-	clearHistogramParallel();
+		final Random random = new Random();
+
+		// for general case where symbols could be not just integers
+		for(int k=0;k<94;k++) {
+			tab_symb[k] = (char)(k+33); // substitute symbols
+		}
+
+		for(int i=0;i<n;i++) {
+			for(int j=0;j<m;j++) {
+			tab[i][j] = tab_symb[random.nextInt(94)];  // ascii 33-127
+			//tab[i][j] = (char)(random.nextInt(94)+33);  // ascii 33-127
+			System.out.print(tab[i][j]+" ");
+			}
+			System.out.print("\n");
+		}
+		System.out.print("\n\n");
+
+		histogram = new int[94];
+		histParallel = new int[94];
+		clear_histogram();
+		clearHistogramParallel();
     }
     
     public void clear_histogram(){
@@ -51,28 +54,19 @@ class Obraz {
 	}
 
 	public void calculate_histogram(){
-		for(int i=0;i<size_n;i++) {
-			for(int j=0;j<size_m;j++) {
-
-			// optymalna wersja obliczania histogramu, wykorzystująca fakt, że symbole w tablicy
-			// można przekształcić w indeksy tablicy histogramu
-			// histogram[(int)tab[i][j]-33]++;
-
-			// wersja bardziej ogólna dla tablicy symboli nie utożsamianych z indeksami
-			// tylko dla tej wersji sensowne jest zrównoleglenie w dziedzinie zbioru znaków ASCII
-			for(int k=0;k<94;k++) {
-				if(tab[i][j] == tab_symb[k]) histogram[k]++;
-				//if(tab[i][j] == (char)(k+33)) histogram[k]++;
-			}
-
-			}
-		}
+		for(int i = 0; i < size_n; i++)
+			for(int j = 0; j < size_m; j++)
+				for(int k = 0; k < 94; k++)
+					if(tab[i][j] == tab_symb[k]) histogram[k]++;
     }
 
 	public void calculateHistogramForGivenChar(int pos) {
 		for(int i=0;i<size_n;i++) {
 			for (int j = 0; j < size_m; j++) {
-				if (tab[i][j] == (char)(pos + 33)) histParallel[pos]++;
+				if (tab[i][j] == (char)(pos + 33)) {
+					histParallel[pos]++;
+					thread_ids[pos] = pos;
+				}
 			}
 		}
 	}
@@ -89,6 +83,19 @@ class Obraz {
 		for(int i=0;i<94;i++) {
 			if (histParallel[i] != 0)
 				System.out.print(tab_symb[i] + " " + histParallel[i] + "\n");
+		}
+	}
+
+	public void graph() {
+		StringBuilder str = new StringBuilder("");
+		for (int i = 0; i < 94; ++i) {
+			if (histParallel[i] != 0) {
+				str = new StringBuilder("");
+				for (int j = 0; j < histParallel[i]; ++j)
+					str.append("=");
+
+				System.out.printf("Watek %3d: [%-40s]\n", i, str.toString());
+			}
 		}
 	}
 
