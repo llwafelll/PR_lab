@@ -40,8 +40,8 @@ public class Histogram_test {
 		obraz_1.printHistParallel();
 		obraz_1.graph();
 
-		// Test integrity
-		System.out.println("Histogram comparison result:");
+		// Test correctness
+		System.out.println("\nHistogram comparison result:");
 		System.out.println(obraz_1.compareHist());
     }
 

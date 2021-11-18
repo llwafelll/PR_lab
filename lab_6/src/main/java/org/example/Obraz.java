@@ -60,7 +60,7 @@ class Obraz {
 					if(tab[i][j] == tab_symb[k]) histogram[k]++;
     }
 
-	public void calculateHistogramForGivenChar(int pos) {
+	public void calculateHistogramInParallel(int pos) {
 		for(int i=0;i<size_n;i++) {
 			for (int j = 0; j < size_m; j++) {
 				if (tab[i][j] == (char)(pos + 33)) {
@@ -72,18 +72,27 @@ class Obraz {
 	}
 
     public void print_histogram(){
+		int printed = 0;
+
 		for(int i=0;i<94;i++) {
-			if (histogram[i] != 0)
-				System.out.print(tab_symb[i]+" "+histogram[i]+"\n");
+			if (histogram[i] != 0) {
+				System.out.print(tab_symb[i] + " " + histogram[i] + "  |  ");
+				if (++printed % 5 == 0) System.out.println();
+			}
 			//System.out.print((char)(i+33)+" "+histogram[i]+"\n");
 		}
+		System.out.println();
     }
 
 	public void printHistParallel() {
+		int printed = 0;
 		for(int i=0;i<94;i++) {
-			if (histParallel[i] != 0)
-				System.out.print(tab_symb[i] + " " + histParallel[i] + "\n");
+			if (histParallel[i] != 0) {
+				System.out.print(tab_symb[i] + " " + histParallel[i] + "  |  ");
+				if (++printed % 5 == 0) System.out.println();
+			}
 		}
+		System.out.println();
 	}
 
 	public void graph() {
@@ -94,7 +103,7 @@ class Obraz {
 				for (int j = 0; j < histParallel[i]; ++j)
 					str.append("=");
 
-				System.out.printf("Watek %3d: [%-40s]\n", i, str.toString());
+				System.out.printf("Watek %03d: %s :[%-40s]\n", i,tab_symb[i], str.toString());
 			}
 		}
 	}

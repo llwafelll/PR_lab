@@ -14,6 +14,6 @@ public class Watek extends Thread{
 
     @Override
     public void run() {
-        image.calculateHistogramForGivenChar(pos);
+        image.calculateHistogramInParallel(pos);
     }
 }
