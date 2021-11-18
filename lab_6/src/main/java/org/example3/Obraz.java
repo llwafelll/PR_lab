@@ -80,11 +80,6 @@ class Obraz {
 						histParallel[k]++;
 						charToThreadId[k] = threadId;
 					}
-
-//				if (tab[i][j] == (char)(pos + 33)) {
-//					histParallel[pos]++;
-//					thread_ids[pos] = pos;
-//				}
 	}
 
 	public void print_histogram(){
@@ -135,7 +130,8 @@ class Obraz {
 					str2.append(histParallel[j]);
 				}
 
-				System.out.printf("Watek %3d: %10s :[%-40s]\n", charToThreadId[i], tab_symb[i], str.toString());
+				System.out.printf("Watek %3d: %10s :[%-40s]\n",
+						charToThreadId[i], tab_symb[i], str.toString());
 			}
 		}
 	}
