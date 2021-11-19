@@ -23,7 +23,7 @@ public class Histogram_test {
 
 		// Run in parallel (scenario 2)
 		final int elementPerThread = (int)(94 / N);
-		Watek[] thrs = new Watek[N];
+		Thread[] thrs = new Thread[N];
 
 		int a, b, rest;
 		for (int i = 0; i < N; ++i) {
@@ -34,7 +34,7 @@ public class Histogram_test {
 			if (i == N - 1)
 				b += rest;
 
-			(thrs[i] = new Watek(i, a, b, obraz_1)).start();
+			(thrs[i] = new Thread(new ThreadTask(i, a, b, obraz_1))).start();
 		}
 
 		for (int i = 0; i < N; ++i) {

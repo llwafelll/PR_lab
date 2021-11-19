@@ -76,7 +76,7 @@ class Obraz {
 		}
     }
 
-	public void calculateForRow(int start, int stop, int threadId) {
+	public synchronized void calculateForRow(int start, int stop, int threadId) {
 		System.out.printf("Running calculateForRow for start=%d and stop=%d\n", start, stop);
 		for (int i = start; i < stop; ++i)
 			for (int j = 0; j < size_m; ++j)
