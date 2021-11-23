@@ -18,7 +18,7 @@ public class Calka_callable implements Callable<Double>{
 		System.out.println("Creating an instance of Calka_callable");
 		System.out.println("xp = " + xp + ", xk = " + xk + ", N = " + N);
 		System.out.println("dx requested = " + dx + ", dx final = " + this.dx);
-
+		System.out.println();
 	}
 
 	private double getFunction(double x) {
