@@ -86,19 +86,6 @@ class Obraz {
 						histParallel[threadId][(int)(tab[i][j] - 33)]++;
 						rowToThread[i] = threadId;
 					}
-
-//		for (int i = 0; i < size_n; ++i)
-//			for (int j = 0; j < size_m; ++j)
-//				for (int k = start; k < stop; ++k)
-//					if (tab[i][j] == tab_symb[k]) {
-//						histParallel[k]++;
-//						charToThreadId[k] = threadId;
-//					}
-
-//				if (tab[i][j] == (char)(pos + 33)) {
-//					histParallel[pos]++;
-//					thread_ids[pos] = pos;
-//				}
 	}
 
     public void print_histogram(){

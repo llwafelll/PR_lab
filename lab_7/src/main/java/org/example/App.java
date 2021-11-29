@@ -1,16 +1,33 @@
 package org.example;
-import java.lang.Math;
+import jdk.nashorn.internal.codegen.CompilerConstants;
 
-/**
- * Hello world!
- *
- */
-public class App 
+import java.lang.Math;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
+
+public class App
 {
     public static void main( String[] args ) throws Exception {
-        double a = 0, b = Math.PI, dx = .001;
-        Calka_callable i1 = new Calka_callable(a, b, dx);
+        int[] data = new int[10];
+        for (int i = 0; i < 10; ++i)
+            data[i] = 10 - i;
 
-        System.out.printf("\nIntegral[%.2f, %.2f] sin(x) dx = %.15f\n", a, b, i1.call());
+        Callable<int[]> dt = new DivideTask(data, 0, 9);
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+
+        int[] result = new int[10];
+//        result = forkJoinPool.invoke(dt);
+//        forkJoinPool.execute(dt);
+        Future<int[]> f1 = forkJoinPool.submit(dt);
+
+        forkJoinPool.shutdown();
+        while (!forkJoinPool.isTerminated()) {}
+
+
+        for (int e : f1.get()) {
+            System.out.printf("%d | ", e);
+        }
+        System.out.println();
     }
 }

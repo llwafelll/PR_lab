@@ -4,3 +4,4 @@ org\example\App.class
 org\example\IntegralExecutor.class
 org\example\Counter.class
 org\example\Calka_callable.class
+org\example\DivideTask.class

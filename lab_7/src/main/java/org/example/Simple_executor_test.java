@@ -4,7 +4,7 @@ import java.util.concurrent.Executors;
 
 public class Simple_executor_test {
 
-    private static final int NTHREADS = 10;
+    private static final int NTHREADS = 4;
         
     public static void main(String[] args) {
 
