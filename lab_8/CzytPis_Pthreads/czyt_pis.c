@@ -16,6 +16,7 @@ int main(){
   int indeksy[10] = {0,1,2,3,4,5,6,7,8,9}; 
   czytelnia_t czytelnia;
   
+  // ustawia liczbe czyt i liczbę pisz na 0
   inicjuj(&czytelnia);
     
   for(i=0; i<5; i++){
@@ -46,6 +47,12 @@ void *funkcja_czytelnika( void * arg){
     
     // korzystanie z zasobow czytelni
     printf("czytelnik %lu - wchodze\n", pthread_self());
+
+    if (czytelnia_p->liczba_pisz > 0) {
+        printf("Blad - pisarze nie moga znajdowac sie w czytelni, kiedy wchodzi czytelnik\n");
+        printf("Lpisz: %d\n", czytelnia_p->liczba_pisz);
+        exit(0);
+    }
     
     czytam(czytelnia_p);
     
@@ -74,6 +81,13 @@ void *funkcja_pisarza( void * arg){
     // korzystanie z zasobow czytelni
     printf("pisarz %lu - wchodze\n", pthread_self());
     
+
+    if (czytelnia_p->liczba_pisz + czytelnia_p->liczba_czyt > 1) {
+        printf("Blad - czytelnia musi byc pusta, kiedy wchodzi pisarz.\n");
+        printf("Lpis: %d, Lczyt: %d\n", czytelnia_p->liczba_pisz, czytelnia_p->czekajacy_czyt);
+        exit(0);
+    }
+
     pisze(czytelnia_p);
     
     printf("pisarz %lu - wychodze\n", pthread_self());
