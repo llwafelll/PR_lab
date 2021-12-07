@@ -3,7 +3,6 @@
 
 /*** Definicje typow zmiennych ***/
 typedef struct {
-  // <- zasoby czytelni
   int liczba_czyt, liczba_pisz;
   int czekajacy_czyt, czekajacy_pis;
   pthread_cond_t czytelnicy, pisarze;
