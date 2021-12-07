@@ -10,6 +10,12 @@ extern void bariera(void);
 
 pthread_t watki[LICZBA_W];
 
+// my vairables
+static int bariera_licznik = 0; int *p_bariera_licznik = &bariera_licznik;
+static int bariera_stop; int *p_bariera_stop = &bariera_stop;
+static pthread_mutex_t bariera_mutex; pthread_mutex_t *p_bariera_mutex = &bariera_mutex;
+static pthread_cond_t bariera_cond; pthread_cond_t *p_bariera_cond = &bariera_cond;
+
 void *cokolwiek( void *arg);
 
 int main( int argc, char *argv[] ){
@@ -38,22 +44,21 @@ void *cokolwiek( void *arg){
   moj_id = *( (int *) arg ); 
 
   printf("przed bariera 1 - watek %d\n",moj_id);
-
-  bariera();
-
-  //  printf("przed bariera 2 - watek %d\n",moj_id);
-
-  //bariera();
-
-  //printf("przed bariera 3 - watek %d\n",moj_id);
-
-  //bariera();
-
-  //printf("przed bariera 4 - watek %d\n",moj_id);
-
-  //bariera();
-
+  // bariera();
+  printf("przed bariera 2 - watek %d\n",moj_id);
+  // bariera();
+  printf("przed bariera 3 - watek %d\n",moj_id);
+  // bariera();
+  printf("przed bariera 4 - watek %d\n",moj_id);
+  // bariera();
   printf("po ostatniej barierze - watek %d\n",moj_id);  
-
   pthread_exit( (void *)0);
 }
+
+
+void bariera_init(int arg_LICZBA_W) {
+  pthread_mutex_init(&bariera_mutex, NULL);
+  pthread_cond_init(&bariera_cond, NULL);
+  bariera_stop = arg_LICZBA_W;
+}
+
