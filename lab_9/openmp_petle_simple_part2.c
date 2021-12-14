@@ -2,13 +2,18 @@
 #include <math.h>
 #include <stdio.h>
 #include <omp.h>
+#include <savetofile.h>
 
-#define WYMIAR 18
+static unsigned long int WYMIAR;
+int main (int argc, char *argv []) {
+  WYMIAR = strtoul(argv[1], NULL, 10);
+  double t_seq, t_par;
+  omp_sched_t kind = omp_sched_dynamic;
+  int chunk_size = 2; // if 0 then default is used
 
-int main ()
-{
-  double a[WYMIAR];
-  int n,i;
+  // double a[WYMIAR];
+  double *a = (double*)malloc(WYMIAR * sizeof(double));
+  unsigned long int n,i;
 
   for(i=0;i<WYMIAR;i++) a[i]=1.02*i;
 
@@ -16,13 +21,18 @@ int main ()
 
   // pętla sekwencyjna
   double suma=0.0;
+
+  t_seq = omp_get_wtime();
   for(i=0;i<WYMIAR;i++) {
       suma += a[i];
   }
+  t_seq = omp_get_wtime() - t_seq;
+
   
   // pętla równoległa
   printf("=== Obliczenia sekwencyjne ===\n");
-  printf("Suma wyrazów tablicy: %lf\n\n", suma);
+  printf("\t*Suma wyrazów tablicy: %lf*\n", suma);
+  printf("\t*Czas: %.10lf*\n\n", t_seq);
 
   // pętla równoległa
   printf("=== Obliczenia równoległe ===\n");
@@ -32,67 +42,37 @@ int main ()
   int TperE = ceil((double)n/(double)omp_get_max_threads()) ;
   printf("\t*ceil(N/T) = %d*\n\n", TperE);
 
-  // alghoritmes
-  double suma_parallel;
+  // algorytm
+  double suma_parallel = 0.0;
 
-  printf("=== schedule(static, 2) ===\n");
-  suma_parallel = 0.0;
-  #pragma omp parallel for default(none) \
-  shared(a) reduction(+:suma_parallel) schedule(static, 2) ordered
-    for (i = 0; i < WYMIAR; ++i) {
+  t_par = omp_get_wtime();
+  omp_set_schedule(kind, chunk_size);
+  #pragma omp parallel for default(none) schedule(runtime)\
+  shared(a, n) reduction(+:suma_parallel) ordered
+    for (i = 0; i < n; ++i) {
       int id_w = omp_get_thread_num();
       suma_parallel += a[i];
 
       #pragma omp ordered
-      printf("a[%2d]->W_%1d  \n", i, id_w);
+      printf("\033[%dma[%2d]->W_%1d\033[m\n", id_w + 33, i, id_w);
     }
+  t_par = omp_get_wtime() - t_par;
 
-  printf("Suma wyrazów tablicy równolegle: %lf\n\n",
+  printf("\n\t*Suma wyrazów tablicy równolegle: %lf*\n",
 	 suma_parallel);
+  printf("\t*Czas: %.10lf*\n", t_par);
+  save_to_file("data2.txt", t_seq, t_par);
 
+  free(a);
 
-  printf("=== schedule(static) ===\n");
-  suma_parallel = 0.0;
-  #pragma omp parallel for default(none) \
-  shared(a) reduction(+:suma_parallel) schedule(static) ordered
-    for (i = 0; i < WYMIAR; ++i) {
-      int id_w = omp_get_thread_num();
-      suma_parallel += a[i];
-
-      #pragma omp ordered
-      printf("a[%2d]->W_%1d  \n", i, id_w);
-    }
-
-  printf("Suma wyrazów tablicy równolegle: %lf\n\n",
-	 suma_parallel);
-
-  printf("=== schedule(dynamic, 2) ===\n");
-  suma_parallel = 0.0;
-  #pragma omp parallel for default(none) \
-  shared(a) reduction(+:suma_parallel) schedule(dynamic, 2) ordered
-    for (i = 0; i < WYMIAR; ++i) {
-      int id_w = omp_get_thread_num();
-      suma_parallel += a[i];
-
-      #pragma omp ordered
-      printf("a[%2d]->W_%1d  \n", i, id_w);
-    }
-
-  printf("Suma wyrazów tablicy równolegle: %lf\n\n",
-	 suma_parallel);
-
-  printf("=== schedule(dynamic) ===\n");
-  suma_parallel = 0.0;
-  #pragma omp parallel for default(none) \
-  shared(a) reduction(+:suma_parallel) schedule(dynamic) ordered
-    for (i = 0; i < WYMIAR; ++i) {
-      int id_w = omp_get_thread_num();
-      suma_parallel += a[i];
-
-      #pragma omp ordered
-      printf("a[%2d]->W_%1d  \n", i, id_w);
-    }
-
-  printf("Suma wyrazów tablicy równolegle: %lf\n\n",
-	 suma_parallel);
+  // old code
+  // #pragma omp parallel for default(none) shared(suma_parallel, a) ordered
+  // for(int i=0;i<WYMIAR;i++) {
+  //   int id_w = omp_get_thread_num();
+  //   // ...
+  //     suma_parallel += a[i];
+  //     // ...
+  // #pragma omp ordered
+  //       printf("a[%2d]->W_%1d  \n",i,id_w); 
+  //   }
 }
