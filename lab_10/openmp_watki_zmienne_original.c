@@ -2,7 +2,6 @@
 #include<stdio.h>
 #include<omp.h>
 
-static int f_threadprivate = 10;
 int main(){
   
 #ifdef   _OPENMP
@@ -10,7 +9,7 @@ int main(){
 #endif
 
   // export OMP_NUM_THREADS=6
-  omp_set_num_threads(5);
+  // omp_set_num_threads(6);
   // num_threads(6) <-- klauzula
 
   int liczba_watkow;
@@ -30,16 +29,14 @@ int main(){
     
   
 #pragma omp parallel default(none) shared(a_shared, e_atomic) \
-private(b_private) firstprivate(c_firstprivate)
+private(b_private) firstprivate(c_firstprivate )
   {
     int i;
     int d_local_private;
     d_local_private = a_shared + c_firstprivate;
-
-    #pragma omp barrier
-    #pragma omp critical(a_shared)
+    
     for(i=0;i<10;i++){
-      a_shared ++;
+      a_shared ++; 
     }
 
     for(i=0;i<10;i++){
@@ -47,16 +44,11 @@ private(b_private) firstprivate(c_firstprivate)
     }
 
     for(i=0;i<10;i++){
-      #pragma omp atomic update
       e_atomic+=omp_get_thread_num();
     }
-
-    #pragma omp threadprivate(f_threadprivate)
-    f_threadprivate += omp_get_thread_num();
     
-    #pragma omp barrier
-    #pragma omp critical
     {
+      
       printf("\nw obszarze równoległym: aktualna liczba watkow %d, moj ID %d\n",
 	     omp_get_num_threads(), omp_get_thread_num());
       
@@ -65,9 +57,9 @@ private(b_private) firstprivate(c_firstprivate)
       printf("\tc_firstprivate \t= %d\n", c_firstprivate);
       printf("\td_local_private = %d\n", d_local_private);
       printf("\te_atomic \t= %d\n", e_atomic);
-      printf("\tf_threadprivate = %d\n", f_threadprivate);
+      
     }
-
+    
     //#pragma omp single
 /* #pragma omp master */
 /*         { */
@@ -99,10 +91,5 @@ private(b_private) firstprivate(c_firstprivate)
   printf("\tb_private \t= %d\n", b_private);
   printf("\tc_firstprivate \t= %d\n", c_firstprivate);
   printf("\te_atomic \t= %d\n", e_atomic);
-
-  printf("\n");
-  #pragma omp parallel default(none)
-  {
-    printf("f_threadprivate = %d\n", f_threadprivate);
-  }
+  
 }

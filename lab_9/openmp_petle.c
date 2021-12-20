@@ -174,10 +174,10 @@ int main (int argc, char *argv [])
 
   free(a);
 
-  printf("\n\t*Suma wyrazów tablicy równolegle: %lf*\n",
-	 suma_parallel);
-  printf("\t*Czas: %.10lf*\n", t_par);
-  save_to_file("openmp_petle.txt", t_seq, t_par);
+  // printf("\n\t*Suma wyrazów tablicy równolegle: %lf*\n",
+	//  suma_parallel);
+  // printf("\t*Czas: %.10lf*\n", t_par);
+  // save_to_file("openmp_petle.txt", t_seq, t_par);
 
   // suma_parallel = 0.0;
   // #pragma omp parallel for default(none) shared(a, suma_parallel) private(i, j) \
