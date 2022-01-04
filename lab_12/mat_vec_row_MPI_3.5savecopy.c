@@ -92,13 +92,8 @@ main ( int argc, char** argv )
     for(i=0;i<WYMIAR*n_wier;i++) a_local[i]=0.0;
     
     // ... collective communication instead of the following point-to-point
-    if (rank == 1) {
-      MPI_Scatter(x, n_wier, MPI_DOUBLE, &x[rank*n_wier], n_wier, MPI_DOUBLE, MPI_IN_PLACE, MPI_COMM_WORLD);
-      MPI_Scatter(a, n_wier*WYMIAR, MPI_DOUBLE, a_local, n_wier*WYMIAR, MPI_DOUBLE, MPI_IN_PLACE, MPI_COMM_WORLD);
-    } else {
-      MPI_Scatter(x, n_wier, MPI_DOUBLE, &x[rank*n_wier], n_wier, MPI_DOUBLE, 1, MPI_COMM_WORLD);
-      MPI_Scatter(a, n_wier*WYMIAR, MPI_DOUBLE, a_local, n_wier*WYMIAR, MPI_DOUBLE, 1, MPI_COMM_WORLD);
-    }
+    MPI_Scatter(x, n_wier, MPI_DOUBLE, &x[rank*n_wier], n_wier, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Scatter(a, n_wier*WYMIAR, MPI_DOUBLE, a_local, n_wier*WYMIAR, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     //??????????????^
     // ....
     
@@ -146,7 +141,7 @@ main ( int argc, char** argv )
   //   }
     
 
-    if(rank==1) {
+    if(rank==0) {
       printf("Starting MPI matrix-vector product with block row decomposition!\n");
       t1 = MPI_Wtime();
     }
@@ -202,7 +197,7 @@ main ( int argc, char** argv )
       
   //   }
 
-      if(rank==1){
+      if(rank==0){
       
       for(i=0;i<WYMIAR;i++){
 	if(fabs(y[i]-z[i])>1.e-9*z[i]) {

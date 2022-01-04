@@ -1,10 +1,10 @@
 # kompilator c
-CCOMP = /usr/lib64/openmpi/bin/mpicc
+CCOMP = /home/kali/opt/openmpi/bin/mpicc
 
 # konsolidator
-LOADER = /usr/lib64/openmpi/bin/mpicc
+LOADER = /home/kali/opt/openmpi/bin/mpicc
 
-MPIRUN = /usr/lib64/openmpi/bin/mpiexec 
+MPIRUN = /home/kali/opt/openmpi/bin/mpiexec -oversubscribe
 
 # opcje optymalizacji:
 # wersja do debugowania
@@ -25,15 +25,15 @@ LIB =  -lm
 #LIB = -L/opt/intel/mkl/10.1.0.015/lib/em64t/ -lmkl -liomp5 -lpthread
 
 # zaleznosci i komendy
-all: mat_vec_row_MPI run
+all: mat_vec_row_MPI run # <- 3.0
 
 #mat_vec_row_MPI: mat_vec_row_MPI.o mat_vec.o pomiar_czasu.o
 #	$(LOADER) $(OPT) mat_vec_row_MPI.o mat_vec.o pomiar_czasu.o -o mat_vec_row_MPI $(LIB)
-mat_vec_row_MPI: mat_vec_row_MPI.o
+mat_vec_row_MPI: mat_vec_row_MPI.o # <- 3.0
 	$(LOADER) $(OPT) mat_vec_row_MPI.o -o mat_vec_row_MPI $(LIB)
 
 #mat_vec_row_MPI.o: mat_vec_row_MPI.c pomiar_czasu.h
-mat_vec_row_MPI.o: mat_vec_row_MPI.c
+mat_vec_row_MPI.o: mat_vec_row_MPI.c # <- 3.0
 	$(CCOMP) -c $(OPT) mat_vec_row_MPI.c $(INC)
 
 #mat_vec.o: mat_vec.c
@@ -42,8 +42,23 @@ mat_vec_row_MPI.o: mat_vec_row_MPI.c
 #pomiar_czasu.o: pomiar_czasu.c pomiar_czasu.h
 #	$(CCOMP) -c $(OPT) pomiar_czasu.c
 
-run:
+run: # <- 3.0
 	$(MPIRUN) -np 4 --oversubscribe  ./mat_vec_row_MPI
 
 clean:
 	rm -f *.o ./mat_vec_row_MPI
+
+# Makefile for oblicz_PI
+# all: oblicz_PI run
+# run:
+# 	$(MPIRUN) -np 4 oblicz_PI
+
+# oblicz_PI: oblicz_PI.o
+# 	$(CCOMP) $(OPT) oblicz_PI.o -o oblicz_PI $(INC)
+
+# oblicz_PI.o: oblicz_PI.c
+# 	$(CCOMP) -c $(OPT) oblicz_PI.c 
+
+
+# clean:
+# 	rm -f *.o ./oblicz_PI
