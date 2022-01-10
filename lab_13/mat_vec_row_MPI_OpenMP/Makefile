@@ -1,11 +1,11 @@
 # kompilator c
-CCOMP = /usr/lib64/openmpi/bin/mpicc
+CCOMP = /home/kali/opt/openmpi/bin/mpicc
 
 # konsolidator
-LOADER = /usr/lib64/openmpi/bin/mpicc
+LOADER = /home/kali/opt/openmpi/bin/mpicc
 
 # program uruchomieniowy MPI
-MPI_run = /usr/lib64/openmpi/bin/mpiexec
+MPI_run = /home/kali/opt/openmpi/bin/mpiexec
 
 # opcje optymalizacji:
 # wersja do debugowania

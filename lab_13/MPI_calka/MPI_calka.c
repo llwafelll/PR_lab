@@ -4,6 +4,8 @@
 
 #include <mpi.h>
 
+int calka(int, int);
+
 int main( int argc, char** argv ){ 
   
   int rank, ranksent, size, source, dest, tag, i; 
